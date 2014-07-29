@@ -9,8 +9,7 @@ prefix = ceilometer.
 append_hostname = true
 ```
 
-2. locate your entry_points.txt file for ceilometer and add this under the ceilometer.publishers group
-Centos: _/usr/lib/python2.6/site-packages/ceilometer-2013.2.3-py2.6.egg-info/entry_points.txt_
+2. locate your entry_points.txt file for ceilometer and add this under the ceilometer.publishers group ( Centos: _/usr/lib/python2.6/site-packages/ceilometer-2013.2.3-py2.6.egg-info/entry_points.txt_ )
 ```
 [ceilometer.publisher]
 graphite = ceilometer.publisher.graphite:GraphitePublisher
@@ -22,8 +21,7 @@ graphite = ceilometer.publisher.graphite:GraphitePublisher
             - graphite://192.168.0.1:2003
 ```
 
-4. Place the graphite.py inside publisher foler 
-Centos: _/usr/lib/python2.6/site-packages/ceilometer/publisher/_
+4. Place the graphite.py inside publisher folder (Centos: _/usr/lib/python2.6/site-packages/ceilometer/publisher/_ )
 
 
 5. Restart openstack-ceilometer-compute
