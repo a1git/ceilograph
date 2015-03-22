@@ -25,3 +25,5 @@ graphite = ceilometer.publisher.graphite:GraphitePublisher
 
 
 5. Restart openstack-ceilometer-compute
+
+Code Review: https://review.openstack.org/#/c/103479/2
