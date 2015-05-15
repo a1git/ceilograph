@@ -30,54 +30,70 @@ except ImportError:
 from ceilometer.openstack.common.gettextutils import _
 import socket
 from oslo.config import cfg
+from oslo.config import types
 
 import time
 import re
+
+PortType = types.Integer(1, 65535)
 
 cfg.CONF.import_opt('udp_port', 'ceilometer.collector',
                     group='collector')
 
 
-OPTS = [
-    cfg.StrOpt('prefix',
-               default='ceilometer',
-               help='Graphite prefix key'),
-    cfg.BoolOpt('hypervisor_in_prefix',
-               default=True,
-               help='If the hypervisor should be added to the prefix'),
-]
+OPTS = [cfg.Opt('default_port',
+                default=2003,
+                type=PortType,
+                help='Default port for communicating with Graphite'),
+        cfg.StrOpt('protocol',
+                   default='udp',
+                   help='Protocol (tcp or udp) to use for '
+                   'communicating with Graphite'),
+        cfg.StrOpt('prefix',
+                   default='ceilometer',
+                   help='Graphite prefix key'),
+        cfg.BoolOpt('hypervisor_in_prefix',
+                    default=True,
+                    help='If the hypervisor should be added to the prefix'),
+        ]
 
 cfg.CONF.register_opts(OPTS, group="graphite")
 
-
-#cfg.CONF.import_opt('prefix', 'append_hostname', group='graphite')
-
 LOG = log.getLogger(__name__)
+
 
 class GraphitePublisher(publisher.PublisherBase):
 
     def __init__(self, parsed_url):
         self.host, self.port = network_utils.parse_host_port(
             parsed_url.netloc,
-            default_port=cfg.CONF.collector.udp_port)
+            default_port=cfg.CONF.graphite.default_port)
 
         if cfg.CONF.graphite.hypervisor_in_prefix:
-            self.prefix = cfg.CONF.graphite.prefix + socket.gethostname().split('.')[0] + "."
-        else :
+            self.prefix = (
+                cfg.CONF.graphite.prefix
+                + socket.gethostname().split('.')[0] + ".")
+        else:
             self.prefix = cfg.CONF.graphite.prefix
-
 
     def graphitePush(self, metric):
         LOG.debug("Sending graphite metric:" + metric)
-        graphiteSock = socket.socket() # TCP
-        #graphiteSock = socket.socket(socket.AF_INET,socket.SOCK_DGRAM) # UDP
+
+        if cfg.CONF.graphite.protocol.lower() == 'tcp':
+            graphiteSock = socket.socket(socket.AF_INET,
+                                         socket.SOCK_STREAM)
+        elif cfg.CONF.graphite.protocol.lower() == 'udp':
+            graphiteSock = socket.socket(socket.AF_INET,
+                                         socket.SOCK_DGRAM)
+        else:
+            raise ValueError('%s: invalid protocol' % (
+                cfg.CONF.graphite.protocol))
+
         graphiteSock.connect((self.host, self.port))
         graphiteSock.sendall(metric)
         graphiteSock.close()
 
-
     def publish_samples(self, context, samples):
-
         for sample in samples:
 
             stats_time = time.time()
