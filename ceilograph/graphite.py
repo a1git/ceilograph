@@ -22,7 +22,11 @@
 
 from ceilometer import publisher
 from ceilometer.openstack.common import log
-from ceilometer.openstack.common import network_utils
+try:
+    from oslo.utils import netutils as network_utils
+except ImportError:
+    from ceilometer.openstack.common import network_utils
+
 from ceilometer.openstack.common.gettextutils import _
 import socket
 from oslo.config import cfg
