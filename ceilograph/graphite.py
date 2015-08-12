@@ -27,7 +27,11 @@ try:
 except ImportError:
     from ceilometer.openstack.common import network_utils
 
-from ceilometer.openstack.common.gettextutils import _
+try:
+    from ceilometer.openstack.common.gettextutils import _
+except ImportError:
+    from ceilometer.i18n import _
+
 import socket
 from oslo.config import cfg
 from oslo.config import types
@@ -167,3 +171,11 @@ class GraphitePublisher(publisher.PublisherBase):
             except Exception as e:
                 LOG.warn(_("Unable to send to Graphite"))
                 LOG.exception(e)
+
+    def publish_events(self, context, events):
+        """Send an event message for publishing
+
+        :param context: Execution context from the service or RPC call
+        :param events: events from pipeline after transformation
+        """
+        raise ceilometer.NotImplementedError
