@@ -1,8 +1,6 @@
 ceilograph
 ==========
-Ceilometer  Metrics to Graphite
-
-## work in progress for a version of this that works in Pike and beyond
+Ceilometer  Metrics to Graphite [work in progress for a version of this that works in Pike and beyond]
 
 1. Append this to your _ceilometer.conf_  
 ```
